@@ -132,7 +132,10 @@
         </div>
       </div>
     </section>
-    
+
+    <!-- 客服时段与响应承诺 -->
+    <ServiceSchedule v-model="activeChannel" />
+
     <!-- 地图区域 -->
     <section class="map-section">
       <a 
@@ -152,6 +155,21 @@
           </div>
         </div>
       </a>
+
+      <!-- 客服渠道直达 -->
+      <div class="map-channel-bar">
+        <span class="bar-label">客服渠道直达</span>
+        <button
+          v-for="ch in serviceChannels"
+          :key="ch.key"
+          class="bar-item"
+          :class="{ active: ch.key === activeChannel }"
+          @click="jumpToChannel(ch.key)"
+        >
+          <i class="status-dot" :class="`dot-${channelStates[ch.key]}`"></i>
+          {{ ch.name }}
+        </button>
+      </div>
     </section>
     
     <!-- 常见问题 -->
@@ -179,13 +197,42 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import SectionTitle from '@/components/SectionTitle.vue'
+import ServiceSchedule from '@/components/ServiceSchedule.vue'
+import { serviceChannels } from '@/data/serviceChannels'
+import { getChannelStatus } from '@/utils/schedule'
+import { useNow } from '@/composables/useNow'
 
 const formRef = ref(null)
 const submitting = ref(false)
 const activeFaq = ref([])
+
+// 客服渠道选择：持久化到 localStorage，切换渠道、刷新和返回后仍显示当前有效安排
+const CHANNEL_STORAGE_KEY = 'zhiyun-service-channel'
+const channelKeys = serviceChannels.map((c) => c.key)
+const storedChannel = localStorage.getItem(CHANNEL_STORAGE_KEY)
+const activeChannel = ref(channelKeys.includes(storedChannel) ? storedChannel : 'online')
+
+watch(activeChannel, (val) => {
+  localStorage.setItem(CHANNEL_STORAGE_KEY, val)
+})
+
+// 各渠道实时状态（地图渠道直达条状态点）
+const now = useNow()
+const channelStates = computed(() => {
+  const map = {}
+  for (const ch of serviceChannels) {
+    map[ch.key] = getChannelStatus(ch, now.value).state
+  }
+  return map
+})
+
+const jumpToChannel = (key) => {
+  activeChannel.value = key
+  document.getElementById('service-schedule')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
 
 const form = reactive({
   name: '',
@@ -491,6 +538,74 @@ const faqs = [
   transition: opacity 0.3s;
 }
 
+.map-channel-bar {
+  position: absolute;
+  left: 50%;
+  bottom: $spacing-lg;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  max-width: calc(100% - #{$spacing-xl});
+  padding: $spacing-xs $spacing-md;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 28px;
+  box-shadow: $shadow-md;
+  overflow-x: auto;
+}
+
+.bar-label {
+  flex-shrink: 0;
+  font-size: $font-size-xs;
+  color: $text-secondary;
+  white-space: nowrap;
+}
+
+.bar-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 4px $spacing-sm;
+  background: $bg-white;
+  border: 1px solid $border-light;
+  border-radius: 16px;
+  font-size: $font-size-xs;
+  color: $text-regular;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.3s;
+
+  &:hover,
+  &.active {
+    border-color: $primary-color;
+    color: $primary-color;
+    background: rgba($primary-color, 0.06);
+  }
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  &.dot-open {
+    background: $success-color;
+    box-shadow: 0 0 0 3px rgba($success-color, 0.2);
+  }
+
+  &.dot-closed {
+    background: $info-color;
+  }
+
+  &.dot-disabled {
+    background: $warning-color;
+    box-shadow: 0 0 0 3px rgba($warning-color, 0.2);
+  }
+}
+
 .faq-list {
   max-width: 800px;
   margin: 0 auto;
@@ -538,9 +653,18 @@ const faqs = [
   .page-title {
     font-size: $font-size-xxl;
   }
-  
+
   .map-section {
     height: 300px;
+  }
+
+  .map-channel-bar {
+    bottom: $spacing-sm;
+    padding: $spacing-xs $spacing-sm;
+
+    .bar-label {
+      display: none;
+    }
   }
 }
 </style>
