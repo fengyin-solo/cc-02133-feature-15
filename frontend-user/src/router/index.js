@@ -43,6 +43,10 @@ const router = createRouter({
     if (to.hash) {
       return { el: to.hash, behavior: 'smooth', top: 80 }
     }
+    // 同页面内仅切换查询参数（如客服渠道）时保持当前滚动位置
+    if (to.path === from.path) {
+      return false
+    }
     return { top: 0 }
   }
 })

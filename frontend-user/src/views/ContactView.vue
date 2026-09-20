@@ -148,12 +148,26 @@
           <div class="map-info">
             <h4>广州知运信息技术有限公司</h4>
             <p><el-icon><Location /></el-icon> 广州市天河区科技园创新大厦A座18楼</p>
+            <div class="map-channels">
+              <span class="map-channels-label">客服渠道</span>
+              <span
+                v-for="channel in supportChannels"
+                :key="channel.id"
+                class="map-channel"
+                @click.stop.prevent="jumpToChannel(channel.id)"
+              >
+                {{ channel.name }}
+              </span>
+            </div>
             <span class="map-tip">点击查看详细位置</span>
           </div>
         </div>
       </a>
     </section>
-    
+
+    <!-- 客服渠道与响应承诺 -->
+    <SupportChannelPanel />
+
     <!-- 常见问题 -->
     <section class="section section-gray">
       <div class="container">
@@ -180,8 +194,25 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import SectionTitle from '@/components/SectionTitle.vue'
+import SupportChannelPanel from '@/components/SupportChannelPanel.vue'
+import { SUPPORT_CHANNELS } from '@/data/supportChannels'
+
+const route = useRoute()
+const router = useRouter()
+
+const supportChannels = SUPPORT_CHANNELS
+
+// 从地图卡片跳转到对应客服渠道
+const jumpToChannel = (channelId) => {
+  router.push({
+    path: '/contact',
+    query: { ...route.query, channel: channelId },
+    hash: '#support-channels'
+  })
+}
 
 const formRef = ref(null)
 const submitting = ref(false)
@@ -481,6 +512,35 @@ const faqs = [
     .el-icon {
       color: $primary-color;
     }
+  }
+}
+
+.map-channels {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+  margin-bottom: $spacing-sm;
+}
+
+.map-channels-label {
+  font-size: $font-size-xs;
+  color: $text-secondary;
+}
+
+.map-channel {
+  font-size: $font-size-xs;
+  color: $primary-color;
+  border: 1px solid rgba($primary-color, 0.4);
+  border-radius: $radius-lg;
+  padding: 2px $spacing-xs;
+  cursor: pointer;
+  transition: all 0.3s;
+
+  &:hover {
+    background: $primary-color;
+    color: #fff;
   }
 }
 

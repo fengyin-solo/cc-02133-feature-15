@@ -59,7 +59,12 @@ npm run build
 │   │   │   ├── FeatureCard.vue   # 特性卡片
 │   │   │   ├── ProductCard.vue   # 产品卡片
 │   │   │   ├── CaseCard.vue      # 案例卡片
-│   │   │   └── SectionTitle.vue  # 区块标题
+│   │   │   ├── SectionTitle.vue  # 区块标题
+│   │   │   └── SupportChannelPanel.vue # 客服渠道与响应承诺面板
+│   │   ├── data/                 # 静态数据
+│   │   │   └── supportChannels.js # 客服渠道与时段配置
+│   │   ├── utils/                # 工具函数
+│   │   │   └── supportSchedule.js # 客服时段计算逻辑
 │   │   ├── router/               # 路由配置
 │   │   │   └── index.js
 │   │   ├── views/                # 页面视图
@@ -89,7 +94,7 @@ npm run build
 | 关于我们 | 公司介绍、发展历程、企业文化、团队风采 |
 | 产品服务 | 智慧物流系统介绍、功能模块、技术优势 |
 | 案例展示 | 成功案例列表、案例详情 |
-| 联系我们 | 联系方式、公司地址、在线留言表单 |
+| 联系我们 | 联系方式、公司地址、在线留言表单、客服渠道可用时段与响应承诺 |
 
 ### 技术特性
 

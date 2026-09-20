@@ -89,6 +89,7 @@ flowchart TD
 | CaseCard | 案例展示卡片 | 案例页 |
 | SectionTitle | 区块标题 | 全局 |
 | ContactForm | 联系表单 | 联系页 |
+| SupportChannelPanel | 客服渠道可用时段与响应承诺面板 | 联系页 |
 
 ## 5. 响应式断点
 
